@@ -1,2 +1,4 @@
 node_modules
 .env.*
+show_db_data.sql
+.DS_Store
