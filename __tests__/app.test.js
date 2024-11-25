@@ -9,7 +9,7 @@ beforeEach(() => seed(data));
 afterAll(() => db.end());
 
 describe("GET /api", () => {
-  test("200: Responds with an object detailing the documentation for each endpoint", () => {
+  it("200: Responds with an object detailing the documentation for each endpoint", () => {
     return request(app)
       .get("/api")
       .expect(200)
@@ -18,9 +18,18 @@ describe("GET /api", () => {
       });
   });
 });
-
+describe("General errors", () => {
+  it("404: responds with an error message when requested a non-existent endpoint", () => {
+    return request(app)
+      .get("/api/non-existent-endpoint")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not found");
+      });
+  });
+});
 describe("GET /api/topics", () => {
-  it("responds with an array of topic objects", () => {
+  it("200: responds with an array of topic objects", () => {
     return request(app)
       .get("/api/topics")
       .expect(200)
