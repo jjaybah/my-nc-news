@@ -238,7 +238,7 @@ describe.only("PATCH /api/articles/:article_id", () => {
         });
       });
   });
-  it("200: responds with an updated article with decreased votes and new title", () => {
+  it("200: responds with an updated article with decreased votes", () => {
     const votes = {
       inc_votes: -50,
     };
@@ -258,6 +258,46 @@ describe.only("PATCH /api/articles/:article_id", () => {
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         });
+      });
+  });
+  it("404: responds with an error message if article with given id does not exist", () => {
+    const votes = { inc_votes: 5 };
+    return request(app)
+      .patch("/api/articles/99")
+      .send(votes)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Article not found");
+      });
+  });
+  it("400: responds with an error message for an invalid article id", () => {
+    const votes = { inc_votes: -5 };
+    return request(app)
+      .patch("/api/articles/eleven")
+      .send(votes)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  it("400: responds with an error message for an invalid data type in the request", () => {
+    const votes = { inc_votes: "add one vote" };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(votes)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  it("400: responds with an error message for an empty request", () => {
+    const votes = {};
+    return request(app)
+      .patch("/api/articles/1")
+      .send(votes)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
       });
   });
 });
