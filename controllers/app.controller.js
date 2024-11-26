@@ -3,8 +3,8 @@ const {
   selectArticleById,
   selectArticles,
   selectCommentsByArticleId,
-  checkArticleExists,
 } = require("../models/app.model");
+const { checkArticleExists } = require("./articles.model");
 const endpointsJSON = require(`${__dirname}/../endpoints.json`);
 
 exports.getApi = (req, res) =>

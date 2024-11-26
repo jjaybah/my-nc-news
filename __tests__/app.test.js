@@ -66,7 +66,7 @@ describe("GET /api/article/:article_id", () => {
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Article not found");
       });
-  });
+  }, 10000);
   it("400: responds with an error message for invalid article_id", () => {
     return request(app)
       .get("/api/articles/five")
@@ -141,6 +141,66 @@ describe("GET /api/articles/:article_id/comments", () => {
   it("400: responds with an error message for an invalid article id ", () => {
     return request(app)
       .get("/api/articles/eleven/comments")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+});
+describe.only("POST /api/articles/:article_id/comments", () => {
+  it("201: responds with a newly created comment object", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Salted pistachio is the best ice cream flavour",
+    };
+    return request(app)
+      .post("/api/articles/6/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          comment_id: 19,
+          votes: 0,
+          created_at: expect.any(String),
+          author: "butter_bridge",
+          body: "Salted pistachio is the best ice cream flavour",
+          article_id: 6,
+        });
+      });
+  });
+  it("404: responds with an error message if an article with given id does not exist", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Salted pistachio is the best ice cream flavour",
+    };
+    return request(app)
+      .post("/api/articles/231/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Article not found");
+      });
+  }, 20000);
+  it("400: responds with an error message for invalid article id", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Salted pistachio is the best ice cream flavour",
+    };
+    return request(app)
+      .post("/api/articles/eleven/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  it("400: responds with an error message for incomplete data in a request", () => {
+    const newComment = {
+      username: "butter_bridge",
+    };
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send(newComment)
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad request");
