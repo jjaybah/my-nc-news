@@ -2,6 +2,8 @@ const {
   selectTopics,
   selectArticleById,
   selectArticles,
+  selectCommentsByArticleId,
+  checkArticleExists,
 } = require("../models/app.model");
 const endpointsJSON = require(`${__dirname}/../endpoints.json`);
 
@@ -25,8 +27,24 @@ exports.getArticleById = (req, res, next) => {
     });
 };
 
-exports.getArticles = (req, res, next) => {
+exports.getArticles = (req, res) => {
   selectArticles().then((articles) => {
     res.status(200).send({ articles });
   });
+};
+
+exports.getCommentsByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  const promises = [
+    selectCommentsByArticleId(article_id),
+    checkArticleExists(article_id),
+  ];
+
+  Promise.all(promises)
+    .then(([comments]) => {
+      res.status(200).send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
