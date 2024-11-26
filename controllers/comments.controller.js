@@ -23,11 +23,11 @@ exports.postComment = (req, res, next) => {
   const { article_id } = req.params;
   const { username, body } = req.body;
   const promises = [
-    addComment(article_id, username, body),
     checkArticleExists(article_id),
+    addComment(article_id, username, body),
   ];
   Promise.all(promises)
-    .then(([comment]) => {
+    .then(([_, comment]) => {
       res.status(201).send({ comment });
     })
     .catch((err) => {

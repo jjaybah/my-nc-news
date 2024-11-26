@@ -1,6 +1,10 @@
 const express = require("express");
 const { getApi } = require("./controllers/app.controller");
-const { postgresErrorHandler, customErrorHandler } = require("./errors");
+const {
+  postgresErrorHandler,
+  customErrorHandler,
+  serverErrorHandler,
+} = require("./errors");
 const {
   postComment,
   getCommentsByArticleId,
@@ -8,6 +12,7 @@ const {
 const {
   getArticleById,
   getArticles,
+  patchArticleById,
 } = require("./controllers/articles.controller");
 const { getTopics } = require("./controllers/topics.controller");
 const app = express();
@@ -25,6 +30,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.post("/api/articles/:article_id/comments", postComment);
 
+app.patch("/api/articles/:article_id", patchArticleById);
+
 app.all("*", (req, res) => {
   res.status(404).send({ msg: "Not found" });
 });
@@ -32,5 +39,7 @@ app.all("*", (req, res) => {
 app.use(postgresErrorHandler);
 
 app.use(customErrorHandler);
+
+app.use(serverErrorHandler);
 
 module.exports = app;
