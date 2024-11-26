@@ -1,13 +1,15 @@
 const express = require("express");
+const { getApi } = require("./controllers/app.controller");
+const { postgresErrorHandler, customErrorHandler } = require("./errors");
 const {
-  getApi,
-  getTopics,
+  postComment,
+  getCommentsByArticleId,
+} = require("./controllers/comments.controller");
+const {
   getArticleById,
   getArticles,
-  getCommentsByArticleId,
-} = require("./controllers/app.controller");
-const { postgresErrorHandler, customErrorHandler } = require("./errors");
-const { postComment } = require("./controllers/comments.controller");
+} = require("./controllers/articles.controller");
+const { getTopics } = require("./controllers/topics.controller");
 const app = express();
 app.use(express.json());
 

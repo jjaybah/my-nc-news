@@ -1,5 +1,23 @@
-const { addComment } = require("../models/comments.model");
-const { checkArticleExists } = require("./articles.model");
+const {
+  addComment,
+  selectCommentsByArticleId,
+} = require("../models/comments.model");
+const { checkArticleExists } = require("../models/articles.model");
+
+exports.getCommentsByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  const promises = [
+    selectCommentsByArticleId(article_id),
+    checkArticleExists(article_id),
+  ];
+  Promise.all(promises)
+    .then(([comments]) => {
+      res.status(200).send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
 
 exports.postComment = (req, res, next) => {
   const { article_id } = req.params;
