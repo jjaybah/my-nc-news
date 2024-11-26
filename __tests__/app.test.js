@@ -42,7 +42,6 @@ describe("GET /api/topics", () => {
       });
   });
 });
-
 describe("GET /api/article/:article_id", () => {
   it("200: responds with an individual article object", () => {
     return request(app)
@@ -76,7 +75,6 @@ describe("GET /api/article/:article_id", () => {
       });
   });
 });
-
 describe("GET /api/articles", () => {
   it("200: responds with an array of article objects", () => {
     return request(app)
@@ -101,7 +99,6 @@ describe("GET /api/articles", () => {
       });
   });
 });
-
 describe("GET /api/articles/:article_id/comments", () => {
   it("200: responds with an array of comment objects for an article by article_id", () => {
     return request(app)
@@ -147,7 +144,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
-describe.only("POST /api/articles/:article_id/comments", () => {
+describe("POST /api/articles/:article_id/comments", () => {
   it("201: responds with a newly created comment object", () => {
     const newComment = {
       username: "butter_bridge",
@@ -180,7 +177,7 @@ describe.only("POST /api/articles/:article_id/comments", () => {
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Article not found");
       });
-  }, 20000);
+  });
   it("400: responds with an error message for invalid article id", () => {
     const newComment = {
       username: "butter_bridge",
@@ -204,6 +201,63 @@ describe.only("POST /api/articles/:article_id/comments", () => {
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad request");
+      });
+  });
+  it("400: responds with an error message if user does not exist", () => {
+    const newComment = {
+      username: "iAmNotHere",
+      body: "Salted pistachio is the best ice cream flavour",
+    };
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not found");
+      });
+  });
+});
+describe.only("PATCH /api/articles/:article_id", () => {
+  it("200: responds with an updated article with increased votes", () => {
+    const votes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(votes)
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 101,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  it("200: responds with an updated article with decreased votes and new title", () => {
+    const votes = {
+      inc_votes: -50,
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(votes)
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 50,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
       });
   });
 });
