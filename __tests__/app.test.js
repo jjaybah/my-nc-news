@@ -76,7 +76,7 @@ describe("GET /api/article/:article_id", () => {
   });
 });
 describe("GET /api/articles", () => {
-  it("200: responds with an array of article objects", () => {
+  it("200: responds with an array of article objects sorted by desc created_at by default", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -97,6 +97,60 @@ describe("GET /api/articles", () => {
           });
         });
       });
+  });
+  describe("sorting queries", () => {
+    it("200: accepts a sort_by query and responds with an array of article objects sorted by title descending ", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(13);
+          expect(articles).toBeSortedBy("title", { descending: true });
+        });
+    });
+    it("200: accepts a sort_by query and responds with an array of article objects sorted by votes", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(13);
+          expect(articles).toBeSortedBy("votes", { descending: true });
+        });
+    });
+    it("200: accepts an order query and responds with an array of article objects in an ascending order", () => {
+      return request(app)
+        .get("/api/articles?order=asc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(13);
+          expect(articles).toBeSortedBy("created_at");
+        });
+    });
+    it("200: accepts a sort_by and an order query, and responds with an array of article objects", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author&order=asc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(13);
+          expect(articles).toBeSortedBy("author");
+        });
+    });
+    it("400: responds with an error message for invalid sort_by query", () => {
+      return request(app)
+        .get("/api/articles?sort_by=length")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+    it("400: responds with an error message for invalid order query", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title&order=ascending")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
   });
 });
 describe("GET /api/articles/:article_id/comments", () => {
