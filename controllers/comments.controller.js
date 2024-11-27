@@ -1,6 +1,8 @@
 const {
   addComment,
   selectCommentsByArticleId,
+  removeCommentById,
+  checkCommentExists,
 } = require("../models/comments.model");
 const { checkArticleExists } = require("../models/articles.model");
 
@@ -33,4 +35,26 @@ exports.postComment = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.deleteComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  checkCommentExists(comment_id)
+    .then((result) => {
+      if (result === false) {
+        return Promise.reject({
+          status: 404,
+          msg: "Not found",
+        });
+      } else {
+        removeCommentById(comment_id).then(() => {
+          checkCommentExists(comment_id).then((result) => {
+            if (result === false) {
+              res.status(204).send({});
+            }
+          });
+        });
+      }
+    })
+    .catch(next);
 };

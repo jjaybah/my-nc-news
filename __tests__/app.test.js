@@ -217,7 +217,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
-describe.only("PATCH /api/articles/:article_id", () => {
+describe("PATCH /api/articles/:article_id", () => {
   it("200: responds with an updated article with increased votes", () => {
     const votes = { inc_votes: 1 };
     return request(app)
@@ -295,6 +295,32 @@ describe.only("PATCH /api/articles/:article_id", () => {
     return request(app)
       .patch("/api/articles/1")
       .send(votes)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+});
+describe.only("DELETE /api/comments/:comment_id", () => {
+  it("204: deletes a comment by id", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  it("404: responds with an error message if a comment does not exist", () => {
+    return request(app)
+      .delete("/api/comments/20")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not found");
+      });
+  });
+  it("400: responds with an error message for an invalid comment id", () => {
+    return request(app)
+      .delete("/api/comments/eleven")
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad request");
