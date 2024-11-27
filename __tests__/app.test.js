@@ -316,7 +316,7 @@ describe("POST /api/articles/:article_id/comments", () => {
 });
 describe("PATCH /api/articles/:article_id", () => {
   it("200: responds with an updated article with increased votes", () => {
-    const votes = { inc_votes: 1 };
+    const votes = { inc_votes: 3 };
     return request(app)
       .patch("/api/articles/1")
       .send(votes)
@@ -329,7 +329,7 @@ describe("PATCH /api/articles/:article_id", () => {
           author: "butter_bridge",
           body: "I find this existence challenging",
           created_at: "2020-07-09T20:11:00.000Z",
-          votes: 101,
+          votes: 103,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         });
