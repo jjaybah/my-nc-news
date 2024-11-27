@@ -75,7 +75,7 @@ describe("GET /api/article/:article_id", () => {
       });
   });
 });
-describe.only("GET /api/articles", () => {
+describe("GET /api/articles", () => {
   it("200: responds with an array of article objects sorted by desc created_at by default", () => {
     return request(app)
       .get("/api/articles")
