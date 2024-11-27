@@ -301,7 +301,7 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
-describe.only("DELETE /api/comments/:comment_id", () => {
+describe("DELETE /api/comments/:comment_id", () => {
   it("204: deletes a comment by id", () => {
     return request(app)
       .delete("/api/comments/1")
