@@ -152,6 +152,49 @@ describe("GET /api/articles", () => {
         });
     });
   });
+  describe("topic query", () => {
+    it("200: accepts a topic query and responds with an array of article objects filtered by topic", () => {
+      return request(app)
+        .get("/api/articles?topic=cats")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(1);
+          articles.forEach((article) => {
+            expect(article.topic).toBe("cats");
+          });
+        });
+    });
+    it("200: accepts a topic query and  responds with an empty array when there are no articles for an existent topic", () => {
+      return request(app)
+        .get("/api/articles?topic=paper")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toEqual([]);
+        });
+    });
+    it("400: responds with an error message for non-existent topic query", () => {
+      return request(app)
+        .get("/api/articles?topic=dogs")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+  });
+  describe("complex quieries", () => {
+    it("200: accepts several queries and responds with an array of articles", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author&order=asc&topic=mitch")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(12);
+          expect(articles).toBeSortedBy("author");
+          articles.forEach((article) => {
+            expect(article.topic).toBe("mitch");
+          });
+        });
+    });
+  });
 });
 describe("GET /api/articles/:article_id/comments", () => {
   it("200: responds with an array of comment objects for an article by article_id", () => {
