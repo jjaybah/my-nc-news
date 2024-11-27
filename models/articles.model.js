@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const { checkTopicExists } = require("./topics.model");
 
 exports.checkArticleExists = (article_id) => {
   return db
@@ -25,21 +26,32 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.selectArticles = (sort_by = "created_at", order = "desc") => {
+exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
   const validSortBy = ["title", "topic", "author", "created_at", "votes"];
   const validOrder = ["desc", "asc"];
+  const validTopics = ["mitch", "cats", "paper"];
   if (!validSortBy.includes(sort_by) || !validOrder.includes(order)) {
     return Promise.reject({ status: 400, msg: "Bad request" });
   }
   let queryString = `SELECT articles.author, articles.title, articles.  article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id)::INT AS comment_count 
       FROM articles
       LEFT JOIN comments
-      ON articles.article_id = comments.article_id
-      GROUP BY articles.article_id `;
-  queryString += `ORDER BY articles.${sort_by} ${order}`;
-  return db.query(queryString).then(({ rows }) => {
-    return rows;
-  });
+      ON articles.article_id = comments.article_id `;
+  if (topic) {
+    if (!validTopics.includes(topic)) {
+      return Promise.reject({ status: 400, msg: "Bad request" });
+    }
+    queryString += `WHERE articles.topic = '${topic}' `;
+  }
+  queryString += `GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order}`;
+  return db
+    .query(queryString)
+    .then(({ rows }) => {
+      return rows;
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.editArticleData = (article_id, votes) => {
