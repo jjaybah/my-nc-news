@@ -301,7 +301,7 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
-describe.only("DELETE /api/comments/:comment_id", () => {
+describe("DELETE /api/comments/:comment_id", () => {
   it("204: deletes a comment by id", () => {
     return request(app)
       .delete("/api/comments/1")
@@ -324,6 +324,23 @@ describe.only("DELETE /api/comments/:comment_id", () => {
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad request");
+      });
+  });
+});
+describe("GET /api/users", () => {
+  it("200: responds with an array of user objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body: { users } }) => {
+        expect(users.length).toBe(4);
+        users.forEach((user) => {
+          expect(user).toMatchObject({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          });
+        });
       });
   });
 });
