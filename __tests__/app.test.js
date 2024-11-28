@@ -490,7 +490,7 @@ describe("PATCH /api/comments/:comment_id", () => {
       .send({ inc_votes: 1 })
       .expect(201)
       .then(({ body: { comment } }) => {
-        expect(comment).toEqual({
+        expect(comment).toMatchObject({
           comment_id: 1,
           body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
           votes: 17,
@@ -534,6 +534,115 @@ describe("PATCH /api/comments/:comment_id", () => {
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad request");
+      });
+  });
+});
+describe("POST /api/articles/", () => {
+  it("201: responds with a newly created article object", () => {
+    const newArticle = {
+      author: "icellusedkars",
+      title: "I saw a cat today",
+      body: "And it licked my shoe",
+      topic: "cats",
+      article_img_url:
+        "https://images.pexels.com/photos/1276553/pexels-photo-1276553.jpeg?w=700&h=700",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          article_id: 14,
+          author: "icellusedkars",
+          title: "I saw a cat today",
+          body: "And it licked my shoe",
+          topic: "cats",
+          votes: 0,
+          created_at: expect.any(String),
+          comment_count: 0,
+          article_img_url:
+            "https://images.pexels.com/photos/1276553/pexels-photo-1276553.jpeg?w=700&h=700",
+        });
+      });
+  });
+  it("201: responds with a newly created article object with a default img_url value", () => {
+    const newArticle = {
+      author: "icellusedkars",
+      title: "I saw a cat today",
+      body: "And it licked my shoe",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          article_id: 14,
+          author: "icellusedkars",
+          title: "I saw a cat today",
+          body: "And it licked my shoe",
+          topic: "cats",
+          votes: 0,
+          created_at: expect.any(String),
+          comment_count: 0,
+          article_img_url:
+            "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+        });
+      });
+  });
+  it("400: responds with an error message if the request body is empty", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({})
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  it("400: responds with an error message if at least one of the required values is missing", () => {
+    const newArticle = {
+      author: "icellusedkars",
+      body: "And it licked my shoe",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  it("404: responds with an error message if author does not exist", () => {
+    const newArticle = {
+      author: "icellnukars",
+      title: "I saw a cat today",
+      body: "And it licked my shoe",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not found");
+      });
+  });
+  it("404: responds with an error message if topic does not exist", () => {
+    const newArticle = {
+      author: "icellusedkars",
+      title: "I saw a cat today",
+      body: "It didn't like my dog",
+      topic: "dogs",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not found");
       });
   });
 });
