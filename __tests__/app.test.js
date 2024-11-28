@@ -701,3 +701,37 @@ describe("POST /api/topics", () => {
       });
   });
 });
+describe("DELETE /api/articles/:article_id", () => {
+  it("204: deletes an article by id and responds with no content", () => {
+    return request(app)
+      .delete("/api/articles/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      })
+      .then(() => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(12);
+          });
+      });
+  });
+  it("404: responds with an error message if article id does not exist", () => {
+    return request(app)
+      .delete("/api/articles/20")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Article not found");
+      });
+  });
+  it("404: responds with an error message for invalid artile id", () => {
+    return request(app)
+      .delete("/api/articles/eleven")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+});

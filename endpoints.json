@@ -186,5 +186,10 @@
         "description": "dogs should be here"
       }
     }
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes an article by given id",
+    "queries": [],
+    "exampleResponse": {}
   }
 }

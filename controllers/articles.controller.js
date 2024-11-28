@@ -3,6 +3,8 @@ const {
   selectArticles,
   editArticleData,
   addArticle,
+  dropArticle,
+  checkArticleExists,
 } = require("../models/articles.model");
 
 exports.getArticleById = (req, res, next) => {
@@ -44,4 +46,13 @@ exports.postArticle = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.deleteArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+  return Promise.all([checkArticleExists(article_id), dropArticle(article_id)])
+    .then(() => {
+      res.status(204).send({});
+    })
+    .catch(next);
 };
