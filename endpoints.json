@@ -172,5 +172,19 @@
         "article_img_url": "https://images.pexels.com/photos/1276553/pexels-photo-1276553.jpeg?w=700&h=700"
       }
     }
+  },
+  "POST /api/topics": {
+    "description": "serves a newly created topic",
+    "queries": [],
+    "sendBody": {
+      "slug": "dogs",
+      "description": "dogs should be here"
+    },
+    "exampleResponse": {
+      "topic": {
+        "slug": "dogs",
+        "description": "dogs should be here"
+      }
+    }
   }
 }

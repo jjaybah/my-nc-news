@@ -214,6 +214,17 @@ describe("GET /api/articles", () => {
         });
     });
   });
+  // describe("pagination", () => {
+  //   it("200: responds with an array of a limited number of user objects", () => {
+  //     return request(app)
+  //       .get("/api/articles?limit=5")
+  //       .expect(200)
+  //       .then(({ body: { articles } }) => {
+  //         expect(articles.length).toBe(5);
+  //       });
+  //   });
+  // });
+  // it("", () => {});
 });
 describe("GET /api/articles/:article_id/comments", () => {
   it("200: responds with an array of comment objects for an article by article_id", () => {
@@ -643,6 +654,50 @@ describe("POST /api/articles/", () => {
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Not found");
+      });
+  });
+});
+describe("POST /api/topics", () => {
+  it("201: responds with a newly created topic object", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({ slug: "dogs", description: "dogs should be here" })
+      .expect(201)
+      .then(({ body: { topic } }) => {
+        expect(topic).toEqual({
+          slug: "dogs",
+          description: "dogs should be here",
+        });
+      });
+  });
+  it("201: responds with a newly created topic object when sent only topic name", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({ slug: "dogs" })
+      .expect(201)
+      .then(({ body: { topic } }) => {
+        expect(topic).toEqual({
+          slug: "dogs",
+          description: null,
+        });
+      });
+  });
+  it("400: responds with an error message if request body is empty", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({})
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  it("400: responds with an error message if the key value is missing", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({ description: "dogs should be here" })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
       });
   });
 });

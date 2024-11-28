@@ -14,3 +14,15 @@ exports.checkTopicExists = (topic) => {
       return Promise.reject({ status: 400, msg: "Bad request" });
     });
 };
+
+exports.addTopic = (topicsData) => {
+  return db
+    .query(
+      `INSERT INTO topics(slug, description)
+    VALUES($1, $2) RETURNING *`,
+      [topicsData.slug, topicsData.description]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};
