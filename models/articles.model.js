@@ -1,5 +1,4 @@
 const db = require("../db/connection");
-const { checkTopicExists } = require("./topics.model");
 
 exports.checkArticleExists = (article_id) => {
   return db
@@ -70,4 +69,23 @@ exports.editArticleData = (article_id, votes) => {
       }
       return rows[0];
     });
+};
+
+exports.addArticle = (article) => {
+  const { author, title, body, topic, article_img_url } = article;
+  let values = [author, title, body, topic];
+  let query = `
+  INSERT INTO articles(author, title, body, topic${
+    article_img_url ? ", article_img_url" : ""
+  })
+  VALUES($1, $2, $3, $4 ${article_img_url ? ", $5" : ""})
+  RETURNING *`;
+
+  if (article_img_url) {
+    values.push(article_img_url);
+  }
+
+  return db.query(query, values).then(({ rows }) => {
+    return { ...rows[0], comment_count: 0 };
+  });
 };
