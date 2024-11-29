@@ -26,7 +26,7 @@ exports.getArticles = (req, res, next) => {
     selectArticles(sort_by, order, topic, limit, p),
   ])
     .then(([total_count, articles]) => {
-      if (Math.ceil(total_count % limit) + 1 < p) {
+      if (Math.ceil(total_count % limit) + 1 < p && articles.length === 0) {
         res.status(404).send({ msg: "Page not found" });
       } else res.status(200).send({ total_count, articles });
     })
