@@ -5,6 +5,7 @@ const {
   addArticle,
   dropArticle,
   checkArticleExists,
+  countArticles,
 } = require("../models/articles.model");
 
 exports.getArticleById = (req, res, next) => {
@@ -19,12 +20,19 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by, order, topic } = req.query;
-  selectArticles(sort_by, order, topic)
-    .then((articles) => {
-      res.status(200).send({ articles });
+  const { sort_by, order, topic, limit, p } = req.query;
+  return Promise.all([
+    countArticles(),
+    selectArticles(sort_by, order, topic, limit, p),
+  ])
+    .then(([total_count, articles]) => {
+      if (limit * p - total_count >= total_count) {
+        res.status(404).send({ msg: "Page not found" });
+      } else res.status(200).send({ total_count, articles });
     })
-    .catch(next);
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.patchArticleById = (req, res, next) => {

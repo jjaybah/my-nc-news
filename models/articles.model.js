@@ -10,6 +10,12 @@ exports.checkArticleExists = (article_id) => {
     });
 };
 
+exports.countArticles = () => {
+  return db.query(`SELECT * FROM articles`).then(({ rows }) => {
+    return rows.length;
+  });
+};
+
 exports.selectArticleById = (article_id) => {
   return db
     .query(
@@ -29,10 +35,17 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
+exports.selectArticles = (
+  sort_by = "created_at",
+  order = "desc",
+  topic,
+  limit = 10,
+  page = 1
+) => {
   const validSortBy = ["title", "topic", "author", "created_at", "votes"];
   const validOrder = ["desc", "asc"];
   const validTopics = ["mitch", "cats", "paper"];
+  const offset = limit * (page - 1);
   if (!validSortBy.includes(sort_by) || !validOrder.includes(order)) {
     return Promise.reject({ status: 400, msg: "Bad request" });
   }
@@ -47,14 +60,10 @@ exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
     queryString += `WHERE articles.topic = '${topic}' `;
   }
   queryString += `GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order}`;
-  return db
-    .query(queryString)
-    .then(({ rows }) => {
-      return rows;
-    })
-    .catch((err) => {
-      next(err);
-    });
+  queryString += ` LIMIT ${limit} OFFSET ${offset}`;
+  return db.query(queryString).then(({ rows }) => {
+    return rows;
+  });
 };
 
 exports.editArticleData = (article_id, votes) => {
