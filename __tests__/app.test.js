@@ -99,8 +99,8 @@ describe("GET /api/articles", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
-      .then(({ body: { articles } }) => {
-        expect(articles.length).toBe(13);
+      .then(({ body: { total_count, articles } }) => {
+        expect(total_count).toBe(13);
         expect(articles).toBeSortedBy("created_at", { descending: true });
         articles.forEach((article) => {
           expect(article).not.toHaveProperty("body");
@@ -122,8 +122,8 @@ describe("GET /api/articles", () => {
       return request(app)
         .get("/api/articles?sort_by=title")
         .expect(200)
-        .then(({ body: { articles } }) => {
-          expect(articles.length).toBe(13);
+        .then(({ body: { total_count, articles } }) => {
+          expect(total_count).toBe(13);
           expect(articles).toBeSortedBy("title", { descending: true });
         });
     });
@@ -131,8 +131,8 @@ describe("GET /api/articles", () => {
       return request(app)
         .get("/api/articles?sort_by=votes")
         .expect(200)
-        .then(({ body: { articles } }) => {
-          expect(articles.length).toBe(13);
+        .then(({ body: { total_count, articles } }) => {
+          expect(total_count).toBe(13);
           expect(articles).toBeSortedBy("votes", { descending: true });
         });
     });
@@ -140,8 +140,8 @@ describe("GET /api/articles", () => {
       return request(app)
         .get("/api/articles?order=asc")
         .expect(200)
-        .then(({ body: { articles } }) => {
-          expect(articles.length).toBe(13);
+        .then(({ body: { total_count, articles } }) => {
+          expect(total_count).toBe(13);
           expect(articles).toBeSortedBy("created_at");
         });
     });
@@ -149,8 +149,8 @@ describe("GET /api/articles", () => {
       return request(app)
         .get("/api/articles?sort_by=author&order=asc")
         .expect(200)
-        .then(({ body: { articles } }) => {
-          expect(articles.length).toBe(13);
+        .then(({ body: { total_count, articles } }) => {
+          expect(total_count).toBe(13);
           expect(articles).toBeSortedBy("author");
         });
     });
@@ -183,7 +183,7 @@ describe("GET /api/articles", () => {
           });
         });
     });
-    it("200: accepts a topic query and  responds with an empty array when there are no articles for an existent topic", () => {
+    it("200: accepts a topic query and responds with an empty array when there are no articles for an existent topic", () => {
       return request(app)
         .get("/api/articles?topic=paper")
         .expect(200)
@@ -205,8 +205,8 @@ describe("GET /api/articles", () => {
       return request(app)
         .get("/api/articles?sort_by=author&order=asc&topic=mitch")
         .expect(200)
-        .then(({ body: { articles } }) => {
-          expect(articles.length).toBe(12);
+        .then(({ body: { total_count, articles } }) => {
+          expect(total_count).toBe(13);
           expect(articles).toBeSortedBy("author");
           articles.forEach((article) => {
             expect(article.topic).toBe("mitch");
@@ -214,17 +214,66 @@ describe("GET /api/articles", () => {
         });
     });
   });
-  // describe("pagination", () => {
-  //   it("200: responds with an array of a limited number of user objects", () => {
-  //     return request(app)
-  //       .get("/api/articles?limit=5")
-  //       .expect(200)
-  //       .then(({ body: { articles } }) => {
-  //         expect(articles.length).toBe(5);
-  //       });
-  //   });
-  // });
-  // it("", () => {});
+  describe("pagination", () => {
+    it("200: responds with an array of a limited number of article objects", () => {
+      return request(app)
+        .get("/api/articles?limit=5")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(5);
+        });
+    });
+    it("200: responds with an array of article objects limited to the default number when no limit query is provided", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(10);
+        });
+    });
+    it("400: responds with an error message for invalid limit request", () => {
+      return request(app)
+        .get("/api/articles?limit=eleven")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+    it("200: accepts a page query and responds with paginated articles starting from the specified page", () => {
+      return request(app)
+        .get("/api/articles?limit=5&p=2")
+        .expect(200)
+        .then(({ body: { total_count, articles } }) => {
+          expect(total_count).toBe(13);
+          expect(articles.length).toBe(5);
+          expect(articles[0]).toMatchObject({
+            article_id: 5,
+            title: "UNCOVERED: catspiracy to bring down democracy",
+            topic: "cats",
+            author: "rogersop",
+            created_at: "2020-08-03T13:14:00.000Z",
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+    it("400: responds with an error message for invalid page request", () => {
+      return request(app)
+        .get("/api/articles?p=eleven")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+    it("404: responds with an error message for non-existent page", () => {
+      return request(app)
+        .get("/api/articles?limit=13&p=2")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Page not found");
+        });
+    });
+  });
 });
 describe("GET /api/articles/:article_id/comments", () => {
   it("200: responds with an array of comment objects for an article by article_id", () => {
@@ -713,8 +762,8 @@ describe("DELETE /api/articles/:article_id", () => {
         return request(app)
           .get("/api/articles")
           .expect(200)
-          .then(({ body: { articles } }) => {
-            expect(articles.length).toBe(12);
+          .then(({ body: { total_count, articles } }) => {
+            expect(total_count).toBe(12);
           });
       });
   });
