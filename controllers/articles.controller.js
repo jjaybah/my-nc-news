@@ -27,7 +27,7 @@ exports.getArticles = (req, res, next) => {
   ])
     .then(([total_count, articles]) => {
       if (Math.ceil(total_count % limit) + 1 < p && articles.length === 0) {
-        res.status(404).send({ msg: "Page not found" });
+        return Promise.reject({ status: 404, msg: "Page not found" });
       } else res.status(200).send({ total_count, articles });
     })
     .catch((err) => {
