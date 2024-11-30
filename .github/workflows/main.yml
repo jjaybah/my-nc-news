@@ -35,6 +35,8 @@ jobs:
   test-app:
     needs: test-utils
     runs-on: ubuntu-latest
+    env:
+      TZ: "Europe/Berlin"
     steps:
       - name: Checkout and clone repo
         uses: actions/checkout@v3
