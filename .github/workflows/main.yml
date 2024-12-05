@@ -6,48 +6,31 @@ on:
       - main
 
 jobs:
-  greeting:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Say Hello
-        run: echo 'Hello from the pipeline'
-
-  test-utils:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout and clone repo
-        uses: actions/checkout@v3
-      - name: Install dependencies
-        run: npm install
-      - name: Test utils
-        run: npm test utils
-        
-  set-timezone:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set timezone
-        uses: szenius/set-timezone@v2.0
-        with:
-          timezoneLinux: "Europe/Berlin"
-          timezoneMacos: "Europe/Berlin"
-          timezoneWindows: "Central European Standard Time"
-
-  test-app:
-    needs: test-utils
+  test:
     runs-on: ubuntu-latest
     env:
-      TZ: "Europe/Berlin"
+      TZ: 'Europe/London'
     steps:
-      - name: Checkout and clone repo
-        uses: actions/checkout@v3
-      - name: Setup PSQL
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          
+      - name: Setup PostgreSQL
         uses: harmon758/postgresql-action@v1
         with:
           postgresql db: test_db
           postgresql user: admin
           postgresql password: password
-
-      - name: Instal dependencies
+          
+      - name: Install dependencies
         run: npm install
-      - name: Test app
-        run: PGDATABASE=test_db PGUSER=admin PGPASSWORD=password npm test app
+        
+      - name: Run tests
+        env:
+          PGDATABASE: test_db
+          PGUSER: admin
+          PGPASSWORD: password
+        run: npm test
