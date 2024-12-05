@@ -5,6 +5,9 @@ const db = require(`${__dirname}/../db/connection`);
 const seed = require(`${__dirname}/../db/seeds/seed`);
 const data = require(`${__dirname}/../db/data/test-data/index`);
 
+beforeAll(() => {
+  process.env.TZ = 'UTC';
+});
 beforeEach(() => seed(data));
 afterAll(() => db.end());
 

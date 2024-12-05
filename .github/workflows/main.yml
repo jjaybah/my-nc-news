@@ -6,18 +6,31 @@ on:
       - main
 
 jobs:
-  greeting:
+  test:
     runs-on: ubuntu-latest
+    env:
+      TZ: 'Europe/London'
     steps:
-      - name: Say Hello
-        run: echo 'Hello from the pipeline'
-
-  test-utils:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout and clone repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          
+      - name: Setup PostgreSQL
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql db: test_db
+          postgresql user: admin
+          postgresql password: password
+          
       - name: Install dependencies
         run: npm install
-      - name: Test utils
-        run: npm test utils
+        
+      - name: Run tests
+        env:
+          PGDATABASE: test_db
+          PGUSER: admin
+          PGPASSWORD: password
+        run: npm test
