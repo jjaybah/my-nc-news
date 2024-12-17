@@ -44,7 +44,7 @@ exports.selectArticles = (
 ) => {
   const validSortBy = ["title", "topic", "author", "created_at", "votes"];
   const validOrder = ["desc", "asc"];
-  const validTopics = ["mitch", "cats", "paper"];
+  const validTopics = ["mitch", "cats", "paper", "coding", "football", "cooking"];
   const offset = limit * (page - 1);
   if (!validSortBy.includes(sort_by) || !validOrder.includes(order)) {
     return Promise.reject({ status: 400, msg: "Bad request" });
