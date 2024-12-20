@@ -59,7 +59,7 @@ exports.selectArticles = (
     }
     queryString += `WHERE articles.topic = '${topic}' `;
   }
-  queryString += `GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order}`;
+  queryString += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
   queryString += ` LIMIT ${limit} OFFSET ${offset}`;
   return db.query(queryString).then(({ rows }) => {
     return rows;
